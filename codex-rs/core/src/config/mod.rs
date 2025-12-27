@@ -2,6 +2,7 @@ use crate::auth::AuthCredentialsStoreMode;
 use crate::config::types::DEFAULT_OTEL_ENVIRONMENT;
 use crate::config::types::History;
 use crate::config::types::McpServerConfig;
+use crate::config::types::OrchestratorConfig;
 use crate::config::types::Notice;
 use crate::config::types::Notifications;
 use crate::config::types::OtelConfig;
@@ -830,6 +831,11 @@ pub struct ConfigToml {
     pub experimental_use_freeform_apply_patch: Option<bool>,
     /// Preferred OSS provider for local models, e.g. "lmstudio" or "ollama".
     pub oss_provider: Option<String>,
+
+    /// Multi-agent orchestrator configuration.
+    /// Allows spawning child agents based on documentation in a specified folder.
+    #[serde(default)]
+    pub orchestrator: Option<OrchestratorConfig>,
 }
 
 impl From<ConfigToml> for UserSavedConfig {
@@ -857,9 +863,12 @@ impl From<ConfigToml> for UserSavedConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct ProjectConfig {
     pub trust_level: Option<TrustLevel>,
+    /// プロジェクト固有のオーケストレーター設定
+    #[serde(default)]
+    pub orchestrator: Option<OrchestratorConfig>,
 }
 
 impl ProjectConfig {
@@ -1156,7 +1165,7 @@ impl Config {
             .collect::<Result<Vec<_>, _>>()?;
         let active_project = cfg
             .get_active_project(&resolved_cwd)
-            .unwrap_or(ProjectConfig { trust_level: None });
+            .unwrap_or_default();
 
         let SandboxPolicyResolution {
             policy: mut sandbox_policy,
@@ -3194,7 +3203,7 @@ model_verbosity = "high"
                 ghost_snapshot: GhostSnapshotConfig::default(),
                 features: Features::with_defaults(),
                 active_profile: Some("o3".to_string()),
-                active_project: ProjectConfig { trust_level: None },
+                active_project: ProjectConfig::default(),
                 windows_wsl_setup_acknowledged: false,
                 notices: Default::default(),
                 check_for_update_on_startup: true,
@@ -3277,7 +3286,7 @@ model_verbosity = "high"
             ghost_snapshot: GhostSnapshotConfig::default(),
             features: Features::with_defaults(),
             active_profile: Some("gpt3".to_string()),
-            active_project: ProjectConfig { trust_level: None },
+            active_project: ProjectConfig::default(),
             windows_wsl_setup_acknowledged: false,
             notices: Default::default(),
             check_for_update_on_startup: true,
@@ -3375,7 +3384,7 @@ model_verbosity = "high"
             ghost_snapshot: GhostSnapshotConfig::default(),
             features: Features::with_defaults(),
             active_profile: Some("zdr".to_string()),
-            active_project: ProjectConfig { trust_level: None },
+            active_project: ProjectConfig::default(),
             windows_wsl_setup_acknowledged: false,
             notices: Default::default(),
             check_for_update_on_startup: true,
@@ -3459,7 +3468,7 @@ model_verbosity = "high"
             ghost_snapshot: GhostSnapshotConfig::default(),
             features: Features::with_defaults(),
             active_profile: Some("gpt5".to_string()),
-            active_project: ProjectConfig { trust_level: None },
+            active_project: ProjectConfig::default(),
             windows_wsl_setup_acknowledged: false,
             notices: Default::default(),
             check_for_update_on_startup: true,
@@ -3754,6 +3763,7 @@ trust_level = "untrusted"
                     test_path.to_string_lossy().to_string(),
                     ProjectConfig {
                         trust_level: Some(TrustLevel::Untrusted),
+                        ..Default::default()
                     },
                 )])),
                 ..Default::default()

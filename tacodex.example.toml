@@ -1,0 +1,28 @@
+# Tacodex 設定ファイル
+#
+# このファイルをプロジェクトルートに `tacodex.toml` としてコピーしてください。
+# または `.tacodex/config.toml` に配置することもできます。
+
+# オーケストレーションモードを有効にする
+enabled = true
+
+# ドキュメントフォルダのパス（プロジェクトルートからの相対パス）
+docs_dir = "./docs"
+
+# 最大並列エージェント数
+max_parallel_agents = 8
+
+# エージェントごとのタイムアウト（秒）
+agent_timeout_sec = 300
+
+# エラーが発生しても続行するか
+continue_on_failure = false
+
+# docsフォルダ検出時に自動でエージェントをスポーンするか
+auto_spawn = false
+
+# 子エージェント用のモデル（省略時は親と同じ）
+# child_agent_model = "gpt-5.2-codex"
+
+# スペックファイル（docs_dir内の特定ファイルを指定する場合）
+# spec_file = "SPEC.md"

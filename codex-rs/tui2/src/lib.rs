@@ -661,7 +661,7 @@ mod tests {
         let temp_dir = TempDir::new()?;
         let mut config = build_config(&temp_dir).await?;
         config.did_user_set_custom_approval_policy_or_sandbox_mode = false;
-        config.active_project = ProjectConfig { trust_level: None };
+        config.active_project = ProjectConfig::default();
         config.set_windows_sandbox_globally(false);
 
         let should_show = should_show_trust_screen(&config);
@@ -684,7 +684,7 @@ mod tests {
         let temp_dir = TempDir::new()?;
         let mut config = build_config(&temp_dir).await?;
         config.did_user_set_custom_approval_policy_or_sandbox_mode = false;
-        config.active_project = ProjectConfig { trust_level: None };
+        config.active_project = ProjectConfig::default();
         config.set_windows_sandbox_globally(true);
 
         let should_show = should_show_trust_screen(&config);
@@ -709,6 +709,7 @@ mod tests {
         config.did_user_set_custom_approval_policy_or_sandbox_mode = false;
         config.active_project = ProjectConfig {
             trust_level: Some(TrustLevel::Untrusted),
+            ..Default::default()
         };
 
         let should_show = should_show_trust_screen(&config);

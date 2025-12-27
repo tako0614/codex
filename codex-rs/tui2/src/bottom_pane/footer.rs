@@ -14,7 +14,22 @@ use ratatui::text::Span;
 use ratatui::widgets::Paragraph;
 use ratatui::widgets::Widget;
 
-#[derive(Clone, Copy, Debug)]
+/// オーケストレーターステータス情報
+#[derive(Clone, Debug, Default)]
+pub(crate) struct OrchestratorFooterInfo {
+    /// オーケストレーターが有効か
+    pub(crate) enabled: bool,
+    /// 実行中のエージェント数
+    pub(crate) running_count: usize,
+    /// 完了したエージェント数
+    pub(crate) completed_count: usize,
+    /// 全エージェント数
+    pub(crate) total_count: usize,
+    /// アクティブな処理中か
+    pub(crate) is_active: bool,
+}
+
+#[derive(Clone, Debug)]
 pub(crate) struct FooterProps {
     pub(crate) mode: FooterMode,
     pub(crate) esc_backtrack_hint: bool,
@@ -26,6 +41,8 @@ pub(crate) struct FooterProps {
     pub(crate) transcript_selection_active: bool,
     pub(crate) transcript_scroll_position: Option<(usize, usize)>,
     pub(crate) transcript_copy_selection_key: KeyBinding,
+    /// オーケストレーターステータス
+    pub(crate) orchestrator: Option<OrchestratorFooterInfo>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -93,6 +110,13 @@ fn footer_lines(props: FooterProps) -> Vec<Line<'static>> {
                 props.context_window_percent,
                 props.context_window_used_tokens,
             );
+            // オーケストレーターステータスを追加
+            if let Some(ref orch) = props.orchestrator {
+                if orch.enabled && (orch.is_active || orch.total_count > 0) {
+                    line.push_span(" · ".dim());
+                    line.push_span(orchestrator_status_span(orch));
+                }
+            }
             line.push_span(" · ".dim());
             line.extend(vec![
                 key_hint::plain(KeyCode::Char('?')).into(),
@@ -278,6 +302,34 @@ fn context_window_line(percent: Option<i64>, used_tokens: Option<i64>) -> Line<'
     }
 
     Line::from(vec![Span::from("100% context left").dim()])
+}
+
+/// オーケストレーターステータスのSpanを生成
+fn orchestrator_status_span(info: &OrchestratorFooterInfo) -> Span<'static> {
+    use ratatui::style::Color;
+
+    let text = if info.is_active {
+        format!(
+            "🤖 {}/{} agents ({}⚡)",
+            info.completed_count,
+            info.total_count,
+            info.running_count
+        )
+    } else if info.total_count > 0 {
+        format!("🤖 {}/{} done", info.completed_count, info.total_count)
+    } else {
+        "🤖 ready".to_string()
+    };
+
+    let color = if info.running_count > 0 {
+        Color::Yellow
+    } else if info.completed_count == info.total_count && info.total_count > 0 {
+        Color::Green
+    } else {
+        Color::Cyan
+    };
+
+    Span::styled(text, ratatui::style::Style::default().fg(color))
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -469,6 +521,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -485,6 +538,7 @@ mod tests {
                 transcript_selection_active: true,
                 transcript_scroll_position: Some((3, 42)),
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -501,6 +555,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -517,6 +572,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -533,6 +589,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -549,6 +606,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -565,6 +623,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -581,6 +640,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
 
@@ -597,6 +657,7 @@ mod tests {
                 transcript_selection_active: false,
                 transcript_scroll_position: None,
                 transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
+                orchestrator: None,
             },
         );
     }

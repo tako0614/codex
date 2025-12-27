@@ -942,3 +942,74 @@ mod tests {
         );
     }
 }
+
+/// オーケストレーター設定（config.toml用）
+///
+/// マルチエージェントオーケストレーションを設定する。
+/// docsフォルダを指定して、親エージェントが子エージェントを
+/// スポーン・管理するワークフローを有効にする。
+///
+/// # Example
+///
+/// ```toml
+/// [orchestrator]
+/// docs_dir = "./docs"
+/// enabled = true
+/// max_parallel_agents = 8
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+pub struct OrchestratorConfig {
+    /// ドキュメントフォルダのパス
+    #[serde(default)]
+    pub docs_dir: Option<PathBuf>,
+
+    /// オーケストレーションモードを有効にするか
+    #[serde(default)]
+    pub enabled: Option<bool>,
+
+    /// 最大並列エージェント数
+    #[serde(default)]
+    pub max_parallel_agents: Option<usize>,
+
+    /// エージェントごとのタイムアウト（秒）
+    #[serde(default)]
+    pub agent_timeout_sec: Option<u64>,
+
+    /// エラー時に続行するか
+    #[serde(default)]
+    pub continue_on_failure: Option<bool>,
+
+    /// 自動的に子エージェントをスポーンするか
+    #[serde(default)]
+    pub auto_spawn: Option<bool>,
+
+    /// 子エージェント用のモデル
+    #[serde(default)]
+    pub child_agent_model: Option<String>,
+}
+
+impl OrchestratorConfig {
+    /// docs_dirが設定されていて有効かチェック
+    pub fn is_docs_available(&self) -> bool {
+        if let Some(ref dir) = self.docs_dir {
+            dir.exists() && dir.is_dir()
+        } else {
+            false
+        }
+    }
+
+    /// オーケストレーションが有効かチェック
+    pub fn is_enabled(&self) -> bool {
+        self.enabled.unwrap_or(false)
+    }
+
+    /// 最大並列エージェント数を取得
+    pub fn get_max_parallel_agents(&self) -> usize {
+        self.max_parallel_agents.unwrap_or(4)
+    }
+
+    /// エージェントタイムアウトを取得（秒）
+    pub fn get_agent_timeout_sec(&self) -> u64 {
+        self.agent_timeout_sec.unwrap_or(300)
+    }
+}

@@ -10,6 +10,7 @@ use codex_cli::LandlockCommand;
 use codex_cli::SeatbeltCommand;
 use codex_cli::WindowsCommand;
 use codex_cli::login::read_api_key_from_stdin;
+use codex_cli::spec_cmd::{SpecCli, run_spec_command};
 use codex_cli::login::run_login_status;
 use codex_cli::login::run_login_with_api_key;
 use codex_cli::login::run_login_with_chatgpt;
@@ -131,6 +132,10 @@ enum Subcommand {
 
     /// Inspect feature flags.
     Features(FeaturesCli),
+
+    /// Run Codex with a specification file (multi-agent orchestration).
+    #[clap(visible_alias = "s")]
+    Spec(SpecCli),
 }
 
 #[derive(Debug, Parser)]
@@ -645,6 +650,13 @@ async fn cli_main(codex_linux_sandbox_exe: Option<PathBuf>) -> anyhow::Result<()
                 }
             }
         },
+        Some(Subcommand::Spec(mut spec_cli)) => {
+            prepend_config_flags(
+                &mut spec_cli.config_overrides,
+                root_config_overrides.clone(),
+            );
+            run_spec_command(spec_cli).await?;
+        }
     }
 
     Ok(())

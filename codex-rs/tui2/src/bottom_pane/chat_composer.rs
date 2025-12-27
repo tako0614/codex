@@ -1545,6 +1545,8 @@ impl ChatComposer {
             transcript_selection_active: self.transcript_selection_active,
             transcript_scroll_position: self.transcript_scroll_position,
             transcript_copy_selection_key: self.transcript_copy_selection_key,
+            // TODO: オーケストレーター統合完了後にここを更新
+            orchestrator: None,
         }
     }
 
@@ -1855,7 +1857,7 @@ impl Renderable for ChatComposer {
                 let footer_props = self.footer_props();
                 let custom_height = self.custom_footer_height();
                 let footer_hint_height =
-                    custom_height.unwrap_or_else(|| footer_height(footer_props));
+                    custom_height.unwrap_or_else(|| footer_height(footer_props.clone()));
                 let footer_spacing = Self::footer_spacing(footer_hint_height);
                 let hint_rect = if footer_spacing > 0 && footer_hint_height > 0 {
                     let [_, hint_rect] = Layout::vertical([

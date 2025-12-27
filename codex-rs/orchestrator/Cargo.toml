@@ -1,0 +1,35 @@
+[package]
+name = "codex-orchestrator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Multi-agent orchestrator for Codex CLI"
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+tokio-util = { workspace = true }
+
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+toml = { workspace = true }
+
+# Markdown parsing
+pulldown-cmark = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Internal dependencies
+codex-core = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+tempfile = { workspace = true }

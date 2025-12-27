@@ -27,6 +27,7 @@ mod command_popup;
 pub mod custom_prompt_view;
 mod file_search_popup;
 mod footer;
+pub(crate) use footer::OrchestratorFooterInfo;
 mod list_selection_view;
 mod prompt_args;
 mod skill_popup;

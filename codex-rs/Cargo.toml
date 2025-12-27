@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "orchestrator",
     "backend-client",
     "ansi-escape",
     "async-utils",
@@ -73,6 +74,7 @@ codex-chatgpt = { path = "chatgpt" }
 codex-client = { path = "codex-client" }
 codex-common = { path = "common" }
 codex-core = { path = "core" }
+codex-orchestrator = { path = "orchestrator" }
 codex-exec = { path = "exec" }
 codex-execpolicy = { path = "execpolicy" }
 codex-feedback = { path = "feedback" }

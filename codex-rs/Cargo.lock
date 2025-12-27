@@ -1153,6 +1153,7 @@ dependencies = [
  "codex-execpolicy",
  "codex-login",
  "codex-mcp-server",
+ "codex-orchestrator",
  "codex-process-hardening",
  "codex-protocol",
  "codex-responses-api-proxy",
@@ -1586,6 +1587,26 @@ dependencies = [
  "tokio",
  "tracing",
  "wiremock",
+]
+
+[[package]]
+name = "codex-orchestrator"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "codex-core",
+ "futures",
+ "pulldown-cmark",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-test",
+ "tokio-util",
+ "toml 0.9.5",
+ "tracing",
 ]
 
 [[package]]

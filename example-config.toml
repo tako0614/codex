@@ -1,0 +1,12 @@
+# Codex CLI 設定ファイル
+#
+# このファイルを ~/.codex/config.toml にコピーして使用してください
+#
+# 注意: Tacodex（オーケストレーション機能）の設定は
+# プロジェクトルートの `tacodex.toml` で行います。
+# 詳細は tacodex.example.toml を参照してください。
+
+# モデル設定
+model = "gpt-5.2-codex"
+
+# その他の設定は元のcodex CLIのドキュメントを参照
