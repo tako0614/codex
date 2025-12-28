@@ -160,7 +160,7 @@ pub struct Config {
     /// appends one extra argument containing a JSON payload describing the
     /// event.
     ///
-    /// Example `~/.codex/config.toml` snippet:
+    /// Example `~/.tacodex/config.toml` snippet:
     ///
     /// ```toml
     /// notify = ["notify-send", "Codex"]
@@ -273,11 +273,11 @@ pub struct Config {
     /// Token budget applied when storing tool/function outputs in the context manager.
     pub tool_output_token_limit: Option<usize>,
 
-    /// Directory containing all Codex state (defaults to `~/.codex` but can be
-    /// overridden by the `CODEX_HOME` environment variable).
+    /// Directory containing all Tacodex state (defaults to `~/.tacodex` but can be
+    /// overridden by the `TACODEX_HOME` environment variable).
     pub codex_home: PathBuf,
 
-    /// Settings that govern if and what will be written to `~/.codex/history.jsonl`.
+    /// Settings that govern if and what will be written to `~/.tacodex/history.jsonl`.
     pub history: History,
 
     /// Optional URI-based file opener. If set, citations to files in the model
@@ -666,7 +666,7 @@ pub fn set_default_oss_provider(codex_home: &Path, provider: &str) -> std::io::R
     Ok(())
 }
 
-/// Base config deserialized from ~/.codex/config.toml.
+/// Base config deserialized from ~/.tacodex/config.toml.
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct ConfigToml {
     /// Optional override of model selection.
@@ -1505,18 +1505,17 @@ fn default_review_model() -> String {
     OPENAI_DEFAULT_REVIEW_MODEL.to_string()
 }
 
-/// Returns the path to the Codex configuration directory, which can be
-/// specified by the `CODEX_HOME` environment variable. If not set, defaults to
-/// `~/.codex`.
+/// Returns the path to the Tacodex configuration directory, which can be
+/// specified by the `TACODEX_HOME` environment variable. If not set, defaults
+/// to `~/.tacodex`.
 ///
-/// - If `CODEX_HOME` is set, the value will be canonicalized and this
+/// - If `TACODEX_HOME` is set, the value will be canonicalized and this
 ///   function will Err if the path does not exist.
-/// - If `CODEX_HOME` is not set, this function does not verify that the
-///   directory exists.
+/// - If not set, this function creates the directory if it doesn't exist.
 pub fn find_codex_home() -> std::io::Result<PathBuf> {
-    // Honor the `CODEX_HOME` environment variable when it is set to allow users
+    // Honor the `TACODEX_HOME` environment variable when it is set to allow users
     // (and tests) to override the default location.
-    if let Ok(val) = std::env::var("CODEX_HOME")
+    if let Ok(val) = std::env::var("TACODEX_HOME")
         && !val.is_empty()
     {
         return PathBuf::from(val).canonicalize();
@@ -1528,7 +1527,13 @@ pub fn find_codex_home() -> std::io::Result<PathBuf> {
             "Could not find home directory",
         )
     })?;
-    p.push(".codex");
+    p.push(".tacodex");
+
+    // Auto-create the directory if it doesn't exist
+    if !p.exists() {
+        std::fs::create_dir_all(&p)?;
+    }
+
     Ok(p)
 }
 

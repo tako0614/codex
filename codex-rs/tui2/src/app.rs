@@ -115,7 +115,7 @@ fn session_summary(
 
     let usage_line = FinalOutput::from(token_usage).to_string();
     let resume_command =
-        conversation_id.map(|conversation_id| format!("codex resume {conversation_id}"));
+        conversation_id.map(|conversation_id| format!("tacodex resume {conversation_id}"));
     Some(SessionSummary {
         usage_line,
         resume_command,
@@ -360,8 +360,20 @@ pub(crate) struct App {
 
     // One-shot suppression of the next world-writable scan after user confirmation.
     skip_world_writable_scan_once: bool,
+
+    /// オーケストレーターの状態（マルチエージェント実行時に使用）
+    orchestrator_info: Option<crate::bottom_pane::OrchestratorFooterInfo>,
 }
 impl App {
+    /// オーケストレーター情報を更新
+    #[allow(dead_code)]
+    fn update_orchestrator_info(
+        &mut self,
+        info: Option<crate::bottom_pane::OrchestratorFooterInfo>,
+    ) {
+        self.orchestrator_info = info.clone();
+        self.chat_widget.set_orchestrator_info(info);
+    }
     async fn shutdown_current_conversation(&mut self) {
         if let Some(conversation_id) = self.chat_widget.conversation_id() {
             self.suppress_shutdown_complete = true;
@@ -513,6 +525,7 @@ impl App {
             pending_update_action: None,
             suppress_shutdown_complete: false,
             skip_world_writable_scan_once: false,
+            orchestrator_info: None,
         };
 
         // On startup, if Agent mode (workspace-write) or ReadOnly is active, warn about world-writable dirs on Windows.
@@ -2126,6 +2139,7 @@ mod tests {
             pending_update_action: None,
             suppress_shutdown_complete: false,
             skip_world_writable_scan_once: false,
+            orchestrator_info: None,
         }
     }
 
@@ -2176,6 +2190,7 @@ mod tests {
                 pending_update_action: None,
                 suppress_shutdown_complete: false,
                 skip_world_writable_scan_once: false,
+                orchestrator_info: None,
             },
             rx,
             op_rx,

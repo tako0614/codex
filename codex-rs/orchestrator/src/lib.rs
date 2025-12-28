@@ -26,6 +26,7 @@
 //! ```
 
 pub mod agent;
+pub mod auto_setup;
 pub mod codex_runner;
 pub mod config;
 pub mod error;
@@ -35,6 +36,7 @@ pub mod spec;
 pub mod tacodex_config;
 
 pub use agent::{AgentContext, AgentEvent, AgentResult, AgentStatus, ChildAgent, ChildAgentRunner};
+pub use auto_setup::{AutoSetupConfig, AutoSetupManager, build_spec_generation_prompt};
 pub use codex_runner::CodexRunner;
 pub use config::{OrchestratorConfigToml, ResolvedOrchestratorConfig};
 pub use error::OrchestratorError;

@@ -24,6 +24,7 @@ use super::command_popup::CommandPopup;
 use super::file_search_popup::FileSearchPopup;
 use super::footer::FooterMode;
 use super::footer::FooterProps;
+use super::footer::OrchestratorFooterInfo;
 use super::footer::esc_hint_mode;
 use super::footer::footer_height;
 use super::footer::render_footer;
@@ -126,6 +127,8 @@ pub(crate) struct ChatComposer {
     transcript_copy_selection_key: KeyBinding,
     skills: Option<Vec<SkillMetadata>>,
     dismissed_skill_popup_token: Option<String>,
+    /// オーケストレーターの状態情報
+    orchestrator_info: Option<OrchestratorFooterInfo>,
 }
 
 /// Popup state – at most one can be visible at any time.
@@ -178,6 +181,7 @@ impl ChatComposer {
             transcript_copy_selection_key: key_hint::ctrl_shift(KeyCode::Char('c')),
             skills: None,
             dismissed_skill_popup_token: None,
+            orchestrator_info: None,
         };
         // Apply configuration via the setter to keep side-effects centralized.
         this.set_disable_paste_burst(disable_paste_burst);
@@ -1545,9 +1549,13 @@ impl ChatComposer {
             transcript_selection_active: self.transcript_selection_active,
             transcript_scroll_position: self.transcript_scroll_position,
             transcript_copy_selection_key: self.transcript_copy_selection_key,
-            // TODO: オーケストレーター統合完了後にここを更新
-            orchestrator: None,
+            orchestrator: self.orchestrator_info.clone(),
         }
+    }
+
+    /// オーケストレーター情報を更新
+    pub fn set_orchestrator_info(&mut self, info: Option<OrchestratorFooterInfo>) {
+        self.orchestrator_info = info;
     }
 
     fn footer_mode(&self) -> FooterMode {

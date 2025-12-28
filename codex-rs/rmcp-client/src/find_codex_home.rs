@@ -5,18 +5,17 @@ use std::path::PathBuf;
 /// TODO: move this to a shared crate lower in the dependency tree.
 ///
 ///
-/// Returns the path to the Codex configuration directory, which can be
-/// specified by the `CODEX_HOME` environment variable. If not set, defaults to
-/// `~/.codex`.
+/// Returns the path to the Tacodex configuration directory, which can be
+/// specified by the `TACODEX_HOME` environment variable. If not set, defaults
+/// to `~/.tacodex`.
 ///
-/// - If `CODEX_HOME` is set, the value will be canonicalized and this
+/// - If `TACODEX_HOME` is set, the value will be canonicalized and this
 ///   function will Err if the path does not exist.
-/// - If `CODEX_HOME` is not set, this function does not verify that the
-///   directory exists.
+/// - If not set, this function creates the directory if it doesn't exist.
 pub(crate) fn find_codex_home() -> std::io::Result<PathBuf> {
-    // Honor the `CODEX_HOME` environment variable when it is set to allow users
+    // Honor the `TACODEX_HOME` environment variable when it is set to allow users
     // (and tests) to override the default location.
-    if let Ok(val) = std::env::var("CODEX_HOME")
+    if let Ok(val) = std::env::var("TACODEX_HOME")
         && !val.is_empty()
     {
         return PathBuf::from(val).canonicalize();
@@ -28,6 +27,12 @@ pub(crate) fn find_codex_home() -> std::io::Result<PathBuf> {
             "Could not find home directory",
         )
     })?;
-    p.push(".codex");
+    p.push(".tacodex");
+
+    // Auto-create the directory if it doesn't exist
+    if !p.exists() {
+        std::fs::create_dir_all(&p)?;
+    }
+
     Ok(p)
 }

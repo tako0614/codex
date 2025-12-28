@@ -1,8 +1,8 @@
 use clap::Parser;
 use codex_arg0::arg0_dispatch_or_else;
 use codex_common::CliConfigOverrides;
-use codex_tui2::Cli;
-use codex_tui2::run_main;
+use tacodex_lib::Cli;
+use tacodex_lib::run_main;
 
 #[derive(Parser, Debug)]
 struct TopCli {

@@ -137,6 +137,12 @@ impl BottomPane {
         self.request_redraw();
     }
 
+    /// オーケストレーター情報を更新
+    pub fn set_orchestrator_info(&mut self, info: Option<OrchestratorFooterInfo>) {
+        self.composer.set_orchestrator_info(info);
+        self.request_redraw();
+    }
+
     pub fn status_widget(&self) -> Option<&StatusIndicatorWidget> {
         self.status.as_ref()
     }

@@ -32,12 +32,12 @@ pub use state::ConfigLayerStackOrdering;
 pub use state::LoaderOverrides;
 
 /// On Unix systems, load requirements from this file path, if present.
-const DEFAULT_REQUIREMENTS_TOML_FILE_UNIX: &str = "/etc/codex/requirements.toml";
+const DEFAULT_REQUIREMENTS_TOML_FILE_UNIX: &str = "/etc/tacodex/requirements.toml";
 
 /// On Unix systems, load default settings from this file path, if present.
-/// Note that /etc/codex/ is treated as a "config folder," so subfolders such
+/// Note that /etc/tacodex/ is treated as a "config folder," so subfolders such
 /// as skills/ and rules/ will also be honored.
-pub const SYSTEM_CONFIG_TOML_FILE_UNIX: &str = "/etc/codex/config.toml";
+pub const SYSTEM_CONFIG_TOML_FILE_UNIX: &str = "/etc/tacodex/config.toml";
 
 const DEFAULT_PROJECT_ROOT_MARKERS: &[&str] = &[".git"];
 
@@ -46,25 +46,25 @@ const DEFAULT_PROJECT_ROOT_MARKERS: &[&str] = &[".git"];
 /// earlier layer cannot be overridden by a later layer:
 ///
 /// - admin:    managed preferences (*)
-/// - system    `/etc/codex/requirements.toml`
+/// - system    `/etc/tacodex/requirements.toml`
 ///
 /// For backwards compatibility, we also load from
-/// `/etc/codex/managed_config.toml` and map it to
-/// `/etc/codex/requirements.toml`.
+/// `/etc/tacodex/managed_config.toml` and map it to
+/// `/etc/tacodex/requirements.toml`.
 ///
 /// Configuration is built up from multiple layers in the following order:
 ///
 /// - admin:    managed preferences (*)
-/// - system    `/etc/codex/config.toml`
-/// - user      `${CODEX_HOME}/config.toml`
+/// - system    `/etc/tacodex/config.toml`
+/// - user      `~/.tacodex/config.toml` (or `${TACODEX_HOME}/config.toml`)
 /// - cwd       `${PWD}/config.toml`
-/// - tree      parent directories up to root looking for `./.codex/config.toml`
-/// - repo      `$(git rev-parse --show-toplevel)/.codex/config.toml`
+/// - tree      parent directories up to root looking for `./.tacodex/config.toml`
+/// - repo      `$(git rev-parse --show-toplevel)/.tacodex/config.toml`
 /// - runtime   e.g., --config flags, model selector in UI
 ///
 /// (*) Only available on macOS via managed device profiles.
 ///
-/// See https://developers.openai.com/codex/security for details.
+/// See https://github.com/tako0614/codex for details.
 ///
 /// When loading the config stack for a thread, there should be a `cwd`
 /// associated with it such that `cwd` should be `Some(...)`. Only for
@@ -468,8 +468,8 @@ async fn load_project_layers(
 
     let mut layers = Vec::new();
     for dir in dirs {
-        let dot_codex = dir.join(".codex");
-        if !tokio::fs::metadata(&dot_codex)
+        let dot_tacodex = dir.join(".tacodex");
+        if !tokio::fs::metadata(&dot_tacodex)
             .await
             .map(|meta| meta.is_dir())
             .unwrap_or(false)
@@ -477,8 +477,8 @@ async fn load_project_layers(
             continue;
         }
 
-        let dot_codex_abs = AbsolutePathBuf::from_absolute_path(&dot_codex)?;
-        let config_file = dot_codex_abs.join(CONFIG_TOML_FILE)?;
+        let dot_tacodex_abs = AbsolutePathBuf::from_absolute_path(&dot_tacodex)?;
+        let config_file = dot_tacodex_abs.join(CONFIG_TOML_FILE)?;
         match tokio::fs::read_to_string(&config_file).await {
             Ok(contents) => {
                 let config: TomlValue = toml::from_str(&contents).map_err(|e| {
@@ -491,10 +491,10 @@ async fn load_project_layers(
                     )
                 })?;
                 let config =
-                    resolve_relative_paths_in_config_toml(config, dot_codex_abs.as_path())?;
+                    resolve_relative_paths_in_config_toml(config, dot_tacodex_abs.as_path())?;
                 layers.push(ConfigLayerEntry::new(
                     ConfigLayerSource::Project {
-                        dot_codex_folder: dot_codex_abs,
+                        dot_codex_folder: dot_tacodex_abs,
                     },
                     config,
                 ));
@@ -506,7 +506,7 @@ async fn load_project_layers(
                     // that are significant in the overall ConfigLayerStack.
                     layers.push(ConfigLayerEntry::new(
                         ConfigLayerSource::Project {
-                            dot_codex_folder: dot_codex_abs,
+                            dot_codex_folder: dot_tacodex_abs,
                         },
                         TomlValue::Table(toml::map::Map::new()),
                     ));
@@ -527,7 +527,7 @@ async fn load_project_layers(
 }
 
 /// The legacy mechanism for specifying admin-enforced configuration is to read
-/// from a file like `/etc/codex/managed_config.toml` that has the same
+/// from a file like `/etc/tacodex/managed_config.toml` that has the same
 /// structure as `config.toml` where fields like `approval_policy` can specify
 /// exactly one value rather than a list of allowed values.
 ///

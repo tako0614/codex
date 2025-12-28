@@ -234,17 +234,17 @@ async fn project_layers_prefer_closest_cwd() -> std::io::Result<()> {
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
-    tokio::fs::create_dir_all(nested.join(".codex")).await?;
-    tokio::fs::create_dir_all(project_root.join(".codex")).await?;
+    tokio::fs::create_dir_all(nested.join(".tacodex")).await?;
+    tokio::fs::create_dir_all(project_root.join(".tacodex")).await?;
     tokio::fs::write(project_root.join(".git"), "gitdir: here").await?;
 
     tokio::fs::write(
-        project_root.join(".codex").join(CONFIG_TOML_FILE),
+        project_root.join(".tacodex").join(CONFIG_TOML_FILE),
         "foo = \"root\"\n",
     )
     .await?;
     tokio::fs::write(
-        nested.join(".codex").join(CONFIG_TOML_FILE),
+        nested.join(".tacodex").join(CONFIG_TOML_FILE),
         "foo = \"child\"\n",
     )
     .await?;
@@ -269,10 +269,10 @@ async fn project_layers_prefer_closest_cwd() -> std::io::Result<()> {
         })
         .collect();
     assert_eq!(project_layers.len(), 2);
-    assert_eq!(project_layers[0].as_path(), nested.join(".codex").as_path());
+    assert_eq!(project_layers[0].as_path(), nested.join(".tacodex").as_path());
     assert_eq!(
         project_layers[1].as_path(),
-        project_root.join(".codex").as_path()
+        project_root.join(".tacodex").as_path()
     );
 
     let config = layers.effective_config();
@@ -290,8 +290,8 @@ async fn project_paths_resolve_relative_to_dot_codex_and_override_in_order() -> 
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
-    tokio::fs::create_dir_all(project_root.join(".codex")).await?;
-    tokio::fs::create_dir_all(nested.join(".codex")).await?;
+    tokio::fs::create_dir_all(project_root.join(".tacodex")).await?;
+    tokio::fs::create_dir_all(nested.join(".tacodex")).await?;
     tokio::fs::write(project_root.join(".git"), "gitdir: here").await?;
 
     let root_cfg = r#"
@@ -300,15 +300,15 @@ experimental_instructions_file = "root.txt"
     let nested_cfg = r#"
 experimental_instructions_file = "child.txt"
 "#;
-    tokio::fs::write(project_root.join(".codex").join(CONFIG_TOML_FILE), root_cfg).await?;
-    tokio::fs::write(nested.join(".codex").join(CONFIG_TOML_FILE), nested_cfg).await?;
+    tokio::fs::write(project_root.join(".tacodex").join(CONFIG_TOML_FILE), root_cfg).await?;
+    tokio::fs::write(nested.join(".tacodex").join(CONFIG_TOML_FILE), nested_cfg).await?;
     tokio::fs::write(
-        project_root.join(".codex").join("root.txt"),
+        project_root.join(".tacodex").join("root.txt"),
         "root instructions",
     )
     .await?;
     tokio::fs::write(
-        nested.join(".codex").join("child.txt"),
+        nested.join(".tacodex").join("child.txt"),
         "child instructions",
     )
     .await?;
@@ -317,7 +317,7 @@ experimental_instructions_file = "child.txt"
     tokio::fs::create_dir_all(&codex_home).await?;
 
     let config = ConfigBuilder::default()
-        .codex_home(codex_home)
+        .tacodex_home(codex_home)
         .harness_overrides(ConfigOverrides {
             cwd: Some(nested.clone()),
             ..ConfigOverrides::default()
@@ -339,7 +339,7 @@ async fn project_layer_is_added_when_dot_codex_exists_without_config_toml() -> s
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
     tokio::fs::create_dir_all(&nested).await?;
-    tokio::fs::create_dir_all(project_root.join(".codex")).await?;
+    tokio::fs::create_dir_all(project_root.join(".tacodex")).await?;
     tokio::fs::write(project_root.join(".git"), "gitdir: here").await?;
 
     let codex_home = tmp.path().join("home");
@@ -361,7 +361,7 @@ async fn project_layer_is_added_when_dot_codex_exists_without_config_toml() -> s
     assert_eq!(
         vec![&ConfigLayerEntry {
             name: super::ConfigLayerSource::Project {
-                dot_codex_folder: AbsolutePathBuf::from_absolute_path(project_root.join(".codex"))?,
+                dot_codex_folder: AbsolutePathBuf::from_absolute_path(project_root.join(".tacodex"))?,
             },
             config: TomlValue::Table(toml::map::Map::new()),
             version: version_for_toml(&TomlValue::Table(toml::map::Map::new())),
@@ -377,16 +377,16 @@ async fn project_root_markers_supports_alternate_markers() -> std::io::Result<()
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
-    tokio::fs::create_dir_all(project_root.join(".codex")).await?;
-    tokio::fs::create_dir_all(nested.join(".codex")).await?;
+    tokio::fs::create_dir_all(project_root.join(".tacodex")).await?;
+    tokio::fs::create_dir_all(nested.join(".tacodex")).await?;
     tokio::fs::write(project_root.join(".hg"), "hg").await?;
     tokio::fs::write(
-        project_root.join(".codex").join(CONFIG_TOML_FILE),
+        project_root.join(".tacodex").join(CONFIG_TOML_FILE),
         "foo = \"root\"\n",
     )
     .await?;
     tokio::fs::write(
-        nested.join(".codex").join(CONFIG_TOML_FILE),
+        nested.join(".tacodex").join(CONFIG_TOML_FILE),
         "foo = \"child\"\n",
     )
     .await?;
@@ -419,10 +419,10 @@ project_root_markers = [".hg"]
         })
         .collect();
     assert_eq!(project_layers.len(), 2);
-    assert_eq!(project_layers[0].as_path(), nested.join(".codex").as_path());
+    assert_eq!(project_layers[0].as_path(), nested.join(".tacodex").as_path());
     assert_eq!(
         project_layers[1].as_path(),
-        project_root.join(".codex").as_path()
+        project_root.join(".tacodex").as_path()
     );
 
     let merged = layers.effective_config();

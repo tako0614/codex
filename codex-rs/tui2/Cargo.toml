@@ -1,15 +1,15 @@
 [package]
-name = "codex-tui2"
-version.workspace = true
+name = "tacodex"
+version = "0.1.11"
 edition.workspace = true
 license.workspace = true
 
 [[bin]]
-name = "codex-tui2"
+name = "tacodex"
 path = "src/main.rs"
 
 [lib]
-name = "codex_tui2"
+name = "tacodex_lib"
 path = "src/lib.rs"
 
 [features]

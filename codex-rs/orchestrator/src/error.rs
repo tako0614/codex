@@ -48,6 +48,9 @@ pub enum OrchestratorError {
 
     #[error("Internal error: {0}")]
     Internal(String),
+
+    #[error("Session error: {0}")]
+    SessionError(String),
 }
 
 impl From<std::io::Error> for OrchestratorError {

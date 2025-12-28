@@ -29,6 +29,8 @@ tracing = { workspace = true }
 
 # Internal dependencies
 codex-core = { workspace = true }
+codex-protocol = { workspace = true }
+codex-common = { workspace = true }
 
 [dev-dependencies]
 tokio-test = { workspace = true }

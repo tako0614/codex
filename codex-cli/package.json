@@ -1,13 +1,17 @@
 {
-  "name": "@openai/codex",
-  "version": "0.0.0-dev",
+  "name": "tacodex",
+  "version": "0.1.13",
+  "description": "Tacodex - Multi-agent orchestration CLI based on Codex",
   "license": "Apache-2.0",
   "bin": {
-    "codex": "bin/codex.js"
+    "tacodex": "bin/codex.js"
   },
   "type": "module",
   "engines": {
     "node": ">=16"
+  },
+  "scripts": {
+    "postinstall": "node bin/postinstall.js"
   },
   "files": [
     "bin",
@@ -15,7 +19,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openai/codex.git",
-    "directory": "codex-cli"
-  }
+    "url": "git+https://github.com/tako0614/codex.git"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "codex",
+    "multi-agent",
+    "orchestration"
+  ],
+  "author": "shout-work"
 }

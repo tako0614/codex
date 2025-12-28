@@ -434,6 +434,14 @@ impl ChatWidget {
         self.bottom_pane.set_skills(skills);
     }
 
+    /// オーケストレーター情報を更新
+    pub(crate) fn set_orchestrator_info(
+        &mut self,
+        info: Option<crate::bottom_pane::OrchestratorFooterInfo>,
+    ) {
+        self.bottom_pane.set_orchestrator_info(info);
+    }
+
     fn set_skills_from_response(&mut self, response: &ListSkillsResponseEvent) {
         let skills = skills_for_cwd(&self.config.cwd, &response.skills);
         self.set_skills(Some(skills));

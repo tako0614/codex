@@ -32,8 +32,8 @@ struct SkillFrontmatterMetadata {
 
 const SKILLS_FILENAME: &str = "SKILL.md";
 const SKILLS_DIR_NAME: &str = "skills";
-const REPO_ROOT_CONFIG_DIR_NAME: &str = ".codex";
-const ADMIN_SKILLS_ROOT: &str = "/etc/codex/skills";
+const REPO_ROOT_CONFIG_DIR_NAME: &str = ".tacodex";
+const ADMIN_SKILLS_ROOT: &str = "/etc/tacodex/skills";
 const MAX_NAME_LEN: usize = 64;
 const MAX_DESCRIPTION_LEN: usize = 1024;
 const MAX_SHORT_DESCRIPTION_LEN: usize = MAX_DESCRIPTION_LEN;
