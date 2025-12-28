@@ -1,6 +1,6 @@
 {
   "name": "tacodex",
-  "version": "0.1.13",
+  "version": "0.1.19",
   "description": "Tacodex - Multi-agent orchestration CLI based on Codex",
   "license": "Apache-2.0",
   "bin": {

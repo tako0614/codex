@@ -62,22 +62,17 @@ Tacodex supports a rich set of configuration options, with preferences stored in
 
 ### Multi-Agent Orchestration
 
-Tacodex supports multi-agent orchestration via `tacodex.toml` configuration files. Define parent-child agent relationships for complex workflows.
+Tacodex uses a parent-child agent architecture that runs entirely within the TUI:
 
-```toml
-# tacodex.toml
-[orchestrator]
-mode = "parallel"
-max_agents = 4
+1. **Parent Agent (Orchestrator)**: Plans, creates `.tacodex/` specifications, then spawns child agents
+2. **Child Agents**: Execute actual coding based on parent's instructions
 
-[[agents]]
-name = "researcher"
-role = "Research and gather information"
+Everything completes in a single TUI session - no additional commands needed.
 
-[[agents]]
-name = "implementer"
-role = "Implement code changes"
-```
+The parent agent automatically:
+- Creates `.tacodex/SPEC.md`, `PLAN.md`, and `instructions/*.md`
+- Spawns child agents (architect → backend → frontend → testing)
+- Coordinates execution based on dependencies
 
 ### Docs & FAQ
 

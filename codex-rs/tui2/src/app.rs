@@ -327,6 +327,9 @@ pub(crate) struct App {
 
     pub(crate) transcript_cells: Vec<Arc<dyn HistoryCell>>,
 
+    /// Transcript lines cache for scroll performance
+    transcript_lines_cache: crate::transcript_render::TranscriptLinesCache,
+
     #[allow(dead_code)]
     transcript_scroll: TranscriptScroll,
     transcript_selection: TranscriptSelection,
@@ -508,6 +511,7 @@ impl App {
             file_search,
             enhanced_keys_supported,
             transcript_cells: Vec::new(),
+            transcript_lines_cache: crate::transcript_render::TranscriptLinesCache::new(),
             transcript_scroll: TranscriptScroll::default(),
             transcript_selection: TranscriptSelection::default(),
             transcript_multi_click: TranscriptMultiClick::default(),
@@ -724,9 +728,39 @@ impl App {
             height: max_transcript_height,
         };
 
-        let transcript =
-            crate::transcript_render::build_wrapped_transcript_lines(cells, transcript_area.width);
-        let (lines, line_meta) = (transcript.lines, transcript.meta);
+        // Compute a simple hash for cache invalidation during streaming
+        let last_cell_hash = if let Some(last_cell) = cells.last() {
+            // Use the number of transcript lines as a simple hash
+            // This detects when content is being streamed
+            let lines_count = last_cell.transcript_lines(transcript_area.width).len();
+            lines_count as u64
+        } else {
+            0
+        };
+
+        // Use cache if valid, otherwise rebuild
+        let transcript = if self.transcript_lines_cache.is_valid(
+            cells.len(),
+            transcript_area.width,
+            last_cell_hash,
+        ) {
+            // Cache hit - reuse existing transcript
+            self.transcript_lines_cache.transcript.as_ref().unwrap()
+        } else {
+            // Cache miss - rebuild and cache
+            let new_transcript = crate::transcript_render::build_wrapped_transcript_lines(
+                cells,
+                transcript_area.width,
+            );
+            self.transcript_lines_cache.update(
+                new_transcript,
+                cells.len(),
+                transcript_area.width,
+                last_cell_hash,
+            );
+            self.transcript_lines_cache.transcript.as_ref().unwrap()
+        };
+        let (lines, line_meta) = (&transcript.lines, &transcript.meta);
         if lines.is_empty() {
             Clear.render_ref(transcript_area, frame.buffer);
             self.transcript_scroll = TranscriptScroll::default();
@@ -2119,6 +2153,7 @@ mod tests {
             active_profile: None,
             file_search,
             transcript_cells: Vec::new(),
+            transcript_lines_cache: crate::transcript_render::TranscriptLinesCache::new(),
             transcript_scroll: TranscriptScroll::default(),
             transcript_selection: TranscriptSelection::default(),
             transcript_multi_click: TranscriptMultiClick::default(),
@@ -2170,6 +2205,7 @@ mod tests {
                 active_profile: None,
                 file_search,
                 transcript_cells: Vec::new(),
+                transcript_lines_cache: crate::transcript_render::TranscriptLinesCache::new(),
                 transcript_scroll: TranscriptScroll::default(),
                 transcript_selection: TranscriptSelection::default(),
                 transcript_multi_click: TranscriptMultiClick::default(),

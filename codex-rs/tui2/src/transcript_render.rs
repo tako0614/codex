@@ -17,6 +17,63 @@ use crate::tui::scrolling::TranscriptLineMeta;
 use ratatui::text::Line;
 use std::sync::Arc;
 
+/// キャッシュされたtranscript lines（スクロールパフォーマンス向上用）
+#[derive(Debug)]
+pub(crate) struct TranscriptLinesCache {
+    /// キャッシュされた行データ
+    pub(crate) transcript: Option<TranscriptLines>,
+    /// キャッシュ時のセル数
+    cached_cell_count: usize,
+    /// キャッシュ時の幅
+    cached_width: u16,
+    /// 最後のセルの内容ハッシュ（ストリーミング中の変更検出用）
+    last_cell_hash: u64,
+}
+
+impl TranscriptLinesCache {
+    pub(crate) fn new() -> Self {
+        Self {
+            transcript: None,
+            cached_cell_count: 0,
+            cached_width: 0,
+            last_cell_hash: 0,
+        }
+    }
+
+    /// キャッシュが有効かチェック
+    pub(crate) fn is_valid(&self, cell_count: usize, width: u16, last_cell_hash: u64) -> bool {
+        self.transcript.is_some()
+            && self.cached_cell_count == cell_count
+            && self.cached_width == width
+            && self.last_cell_hash == last_cell_hash
+    }
+
+    /// キャッシュを更新
+    pub(crate) fn update(
+        &mut self,
+        transcript: TranscriptLines,
+        cell_count: usize,
+        width: u16,
+        last_cell_hash: u64,
+    ) {
+        self.transcript = Some(transcript);
+        self.cached_cell_count = cell_count;
+        self.cached_width = width;
+        self.last_cell_hash = last_cell_hash;
+    }
+
+    /// キャッシュを無効化
+    pub(crate) fn invalidate(&mut self) {
+        self.transcript = None;
+    }
+}
+
+impl Default for TranscriptLinesCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Flattened transcript lines plus the metadata required to interpret them.
 #[derive(Debug)]
 pub(crate) struct TranscriptLines {
